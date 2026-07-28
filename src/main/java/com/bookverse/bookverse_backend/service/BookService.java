@@ -1,18 +1,21 @@
 package com.bookverse.bookverse_backend.service;
 
-import com.bookverse.bookverse_backend.entity.Book;
+import com.bookverse.bookverse_backend.dto.BookRequestDTO;
+import com.bookverse.bookverse_backend.dto.BookResponseDTO;
+import com.bookverse.bookverse_backend.dto.BookRequestDTO;
+import com.bookverse.bookverse_backend.dto.BookResponseDTO;
 
 import java.util.List;
 
 public interface BookService {
 
-    Book addBook(Book book);
+    BookResponseDTO addBook(BookRequestDTO requestDTO);
 
-    List<Book> getAllBooks();
+    List<BookResponseDTO> getAllBooks();
 
-    Book getBookById(Long id);
+    BookResponseDTO getBookById(Long id);
 
-    Book updateBook(Long id, Book book);
+    BookResponseDTO updateBook(Long id, BookRequestDTO requestDTO);
 
     void deleteBook(Long id);
 }

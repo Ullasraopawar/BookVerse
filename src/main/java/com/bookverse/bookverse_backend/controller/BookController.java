@@ -1,7 +1,9 @@
 package com.bookverse.bookverse_backend.controller;
 
-import com.bookverse.bookverse_backend.entity.Book;
+import com.bookverse.bookverse_backend.dto.BookRequestDTO;
+import com.bookverse.bookverse_backend.dto.BookResponseDTO;
 import com.bookverse.bookverse_backend.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,27 +18,27 @@ public class BookController {
 
     // Add Book
     @PostMapping
-    public Book addBook(@RequestBody Book book) {
-        return bookService.addBook(book);
+    public BookResponseDTO addBook(@Valid @RequestBody BookRequestDTO requestDTO) {
+        return bookService.addBook(requestDTO);
     }
 
     // Get All Books
     @GetMapping
-    public List<Book> getAllBooks() {
+    public List<BookResponseDTO> getAllBooks() {
         return bookService.getAllBooks();
     }
 
     // Get Book By Id
     @GetMapping("/{id}")
-    public Book getBookById(@PathVariable Long id) {
+    public BookResponseDTO getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }
 
     // Update Book
     @PutMapping("/{id}")
-    public Book updateBook(@PathVariable Long id,
-                           @RequestBody Book book) {
-        return bookService.updateBook(id, book);
+    public BookResponseDTO updateBook(@PathVariable Long id,
+                                      @Valid @RequestBody BookRequestDTO requestDTO) {
+        return bookService.updateBook(id, requestDTO);
     }
 
     // Delete Book

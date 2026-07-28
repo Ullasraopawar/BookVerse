@@ -1,5 +1,7 @@
 package com.bookverse.bookverse_backend.service.impl;
 
+import com.bookverse.bookverse_backend.dto.BookRequestDTO;
+import com.bookverse.bookverse_backend.dto.BookResponseDTO;
 import com.bookverse.bookverse_backend.entity.Book;
 import com.bookverse.bookverse_backend.repository.BookRepository;
 import com.bookverse.bookverse_backend.service.BookService;
@@ -15,37 +17,43 @@ public class BookServiceImpl implements BookService {
     private BookRepository bookRepository;
 
     @Override
-    public Book addBook(Book book) {
-        return bookRepository.save(book);
+    public BookResponseDTO addBook(BookRequestDTO requestDTO) {
+
+        Book book = new Book();
+
+        book.setTitle(requestDTO.getTitle());
+        book.setAuthor(requestDTO.getAuthor());
+        book.setGenre(requestDTO.getGenre());
+        book.setPublishedYear(requestDTO.getPublishedYear());
+        book.setIsbn(requestDTO.getIsbn());
+
+        Book savedBook = bookRepository.save(book);
+
+        BookResponseDTO responseDTO = new BookResponseDTO();
+
+        responseDTO.setId(savedBook.getId());
+        responseDTO.setTitle(savedBook.getTitle());
+        responseDTO.setAuthor(savedBook.getAuthor());
+        responseDTO.setGenre(savedBook.getGenre());
+        responseDTO.setPublishedYear(savedBook.getPublishedYear());
+        responseDTO.setIsbn(savedBook.getIsbn());
+
+        return responseDTO;
     }
 
     @Override
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookResponseDTO> getAllBooks() {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Book getBookById(Long id) {
-        return bookRepository.findById(id).orElse(null);
+    public BookResponseDTO getBookById(Long id) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Book updateBook(Long id, Book book) {
-
-        Book existingBook = bookRepository.findById(id).orElse(null);
-
-        if (existingBook != null) {
-
-            existingBook.setTitle(book.getTitle());
-            existingBook.setAuthor(book.getAuthor());
-            existingBook.setGenre(book.getGenre());
-            existingBook.setPublishedYear(book.getPublishedYear());
-            existingBook.setIsbn(book.getIsbn());
-
-            return bookRepository.save(existingBook);
-        }
-
-        return null;
+    public BookResponseDTO updateBook(Long id, BookRequestDTO requestDTO) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

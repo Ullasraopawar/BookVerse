@@ -1,46 +1,15 @@
-package com.bookverse.bookverse_backend.entity;
+package com.bookverse.bookverse_backend.dto;
 
-import jakarta.persistence.*;
+public class BookResponseDTO {
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Entity
-@Table(name = "books")
-public class Book {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String title;
-
     private String author;
-
     private String genre;
-
     private Integer publishedYear;
-
     private String isbn;
 
-    @OneToMany(mappedBy = "book",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
-
-    public Book() {
-    }
-
-    public Book(Long id, String title, String author, String genre,
-                Integer publishedYear, String isbn, List<Review> reviews) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.genre = genre;
-        this.publishedYear = publishedYear;
-        this.isbn = isbn;
-        this.reviews = reviews;
+    public BookResponseDTO() {
     }
 
     public Long getId() {
@@ -89,13 +58,5 @@ public class Book {
 
     public void setIsbn(String isbn) {
         this.isbn = isbn;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
     }
 }
