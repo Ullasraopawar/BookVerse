@@ -4,6 +4,8 @@ import com.bookverse.bookverse_backend.dto.ChangePasswordDTO;
 import com.bookverse.bookverse_backend.dto.UpdateProfileDTO;
 import com.bookverse.bookverse_backend.dto.UserProfileDTO;
 import com.bookverse.bookverse_backend.entity.User;
+import com.bookverse.bookverse_backend.exception.BadRequestException;
+import com.bookverse.bookverse_backend.exception.ResourceNotFoundException;
 import com.bookverse.bookverse_backend.repository.UserRepository;
 import com.bookverse.bookverse_backend.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +28,8 @@ public class UserServiceImpl implements UserService {
     public UserProfileDTO getProfile(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         return mapToDTO(user);
     }
@@ -37,7 +40,8 @@ public class UserServiceImpl implements UserService {
             UpdateProfileDTO request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         user.setName(request.getName());
 
@@ -52,13 +56,14 @@ public class UserServiceImpl implements UserService {
             ChangePasswordDTO request) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(
                 request.getOldPassword(),
                 user.getPassword())) {
 
-            throw new RuntimeException("Old password is incorrect");
+            throw new BadRequestException("Old password is incorrect");
         }
 
         user.setPassword(
@@ -75,7 +80,9 @@ public class UserServiceImpl implements UserService {
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
-        dto.setRole(user.getRole());
+
+        // Convert enum to String
+        dto.setRole(user.getRole().name());
 
         return dto;
     }

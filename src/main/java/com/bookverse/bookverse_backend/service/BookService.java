@@ -3,7 +3,9 @@ package com.bookverse.bookverse_backend.service;
 import com.bookverse.bookverse_backend.dto.BookRequestDTO;
 import com.bookverse.bookverse_backend.dto.BookResponseDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface BookService {
@@ -23,4 +25,10 @@ public interface BookService {
     List<BookResponseDTO> searchByAuthor(String author);
 
     List<BookResponseDTO> searchByGenre(String genre);
+
+    // NEW
+    BookResponseDTO uploadBookCover(
+            Long id,
+            MultipartFile file
+    ) throws IOException;
 }

@@ -5,6 +5,8 @@ import com.bookverse.bookverse_backend.dto.FavoriteResponseDTO;
 import com.bookverse.bookverse_backend.entity.Book;
 import com.bookverse.bookverse_backend.entity.Favorite;
 import com.bookverse.bookverse_backend.entity.User;
+import com.bookverse.bookverse_backend.exception.BadRequestException;
+import com.bookverse.bookverse_backend.exception.ResourceNotFoundException;
 import com.bookverse.bookverse_backend.repository.BookRepository;
 import com.bookverse.bookverse_backend.repository.FavoriteRepository;
 import com.bookverse.bookverse_backend.repository.UserRepository;
@@ -33,13 +35,15 @@ public class FavoriteServiceImpl implements FavoriteService {
                                            String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Book not found"));
 
         if (favoriteRepository.findByUserIdAndBookId(user.getId(), book.getId()).isPresent()) {
-            throw new RuntimeException("Book already in favorites");
+            throw new BadRequestException("Book is already in your favorites.");
         }
 
         Favorite favorite = new Favorite();
@@ -48,35 +52,19 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         Favorite saved = favoriteRepository.save(favorite);
 
-        FavoriteResponseDTO dto = new FavoriteResponseDTO();
-        dto.setFavoriteId(saved.getId());
-        dto.setBookId(book.getId());
-        dto.setTitle(book.getTitle());
-        dto.setAuthor(book.getAuthor());
-        dto.setGenre(book.getGenre());
-
-        return dto;
+        return mapToDTO(saved);
     }
 
     @Override
     public List<FavoriteResponseDTO> getFavorites(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         return favoriteRepository.findByUser(user)
                 .stream()
-                .map(favorite -> {
-                    FavoriteResponseDTO dto = new FavoriteResponseDTO();
-
-                    dto.setFavoriteId(favorite.getId());
-                    dto.setBookId(favorite.getBook().getId());
-                    dto.setTitle(favorite.getBook().getTitle());
-                    dto.setAuthor(favorite.getBook().getAuthor());
-                    dto.setGenre(favorite.getBook().getGenre());
-
-                    return dto;
-                })
+                .map(this::mapToDTO)
                 .toList();
     }
 
@@ -84,12 +72,27 @@ public class FavoriteServiceImpl implements FavoriteService {
     public void removeFavorite(Long bookId, String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         Favorite favorite = favoriteRepository
                 .findByUserIdAndBookId(user.getId(), bookId)
-                .orElseThrow(() -> new RuntimeException("Favorite not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Favorite not found"));
 
         favoriteRepository.delete(favorite);
+    }
+
+    private FavoriteResponseDTO mapToDTO(Favorite favorite) {
+
+        FavoriteResponseDTO dto = new FavoriteResponseDTO();
+
+        dto.setFavoriteId(favorite.getId());
+        dto.setBookId(favorite.getBook().getId());
+        dto.setTitle(favorite.getBook().getTitle());
+        dto.setAuthor(favorite.getBook().getAuthor());
+        dto.setGenre(favorite.getBook().getGenre());
+
+        return dto;
     }
 }

@@ -8,6 +8,10 @@ public class BookResponseDTO {
     private String genre;
     private Integer publishedYear;
     private String isbn;
+
+    // NEW
+    private String coverImage;
+
     private Double averageRating;
     private Integer reviewCount;
 
@@ -61,6 +65,15 @@ public class BookResponseDTO {
     public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
+
     public Double getAverageRating() {
         return averageRating;
     }

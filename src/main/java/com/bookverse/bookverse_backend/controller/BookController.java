@@ -3,10 +3,11 @@ package com.bookverse.bookverse_backend.controller;
 import com.bookverse.bookverse_backend.dto.BookRequestDTO;
 import com.bookverse.bookverse_backend.dto.BookResponseDTO;
 import com.bookverse.bookverse_backend.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -14,8 +15,11 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
+    private final BookService bookService;
+
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
 
     @PostMapping
     public BookResponseDTO addBook(@RequestBody BookRequestDTO requestDTO) {
@@ -71,5 +75,18 @@ public class BookController {
             @RequestParam String genre) {
 
         return bookService.searchByGenre(genre);
+    }
+
+    // ==========================
+    // Upload Book Cover
+    // ==========================
+
+    @PostMapping("/{id}/cover")
+    public BookResponseDTO uploadBookCover(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file)
+            throws IOException {
+
+        return bookService.uploadBookCover(id, file);
     }
 }

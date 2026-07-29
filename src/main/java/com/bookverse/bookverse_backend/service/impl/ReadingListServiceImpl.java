@@ -5,6 +5,8 @@ import com.bookverse.bookverse_backend.dto.ReadingListResponseDTO;
 import com.bookverse.bookverse_backend.entity.Book;
 import com.bookverse.bookverse_backend.entity.ReadingList;
 import com.bookverse.bookverse_backend.entity.User;
+import com.bookverse.bookverse_backend.exception.BadRequestException;
+import com.bookverse.bookverse_backend.exception.ResourceNotFoundException;
 import com.bookverse.bookverse_backend.repository.BookRepository;
 import com.bookverse.bookverse_backend.repository.ReadingListRepository;
 import com.bookverse.bookverse_backend.repository.UserRepository;
@@ -36,16 +38,19 @@ public class ReadingListServiceImpl implements ReadingListService {
             String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Book not found"));
 
         if (readingListRepository
                 .findByUserIdAndBookId(user.getId(), book.getId())
                 .isPresent()) {
 
-            throw new RuntimeException("Book already exists in reading list");
+            throw new BadRequestException(
+                    "Book already exists in your reading list.");
         }
 
         ReadingList readingList = new ReadingList();
@@ -62,7 +67,8 @@ public class ReadingListServiceImpl implements ReadingListService {
     public List<ReadingListResponseDTO> getMyReadingList(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         return readingListRepository.findByUser(user)
                 .stream()
@@ -77,31 +83,39 @@ public class ReadingListServiceImpl implements ReadingListService {
             String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         ReadingList readingList = readingListRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reading list entry not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Reading list entry not found"));
 
         if (!readingList.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
+            throw new BadRequestException(
+                    "You can update only your own reading list.");
         }
 
         readingList.setStatus(request.getStatus());
 
-        return mapToDTO(readingListRepository.save(readingList));
+        ReadingList updated = readingListRepository.save(readingList);
+
+        return mapToDTO(updated);
     }
 
     @Override
     public void deleteBook(Long id, String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         ReadingList readingList = readingListRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reading list entry not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Reading list entry not found"));
 
         if (!readingList.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
+            throw new BadRequestException(
+                    "You can delete only your own reading list.");
         }
 
         readingListRepository.delete(readingList);

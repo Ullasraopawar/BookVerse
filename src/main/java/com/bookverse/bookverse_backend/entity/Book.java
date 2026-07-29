@@ -5,12 +5,6 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-
-import lombok.Data;
-
-@Data
 @Entity
 @Table(name = "books")
 public class Book {
@@ -28,25 +22,20 @@ public class Book {
 
     private Integer publishedYear;
 
+    @Column(unique = true)
     private String isbn;
 
-    @OneToMany(mappedBy = "book",
+    // NEW FIELD
+    private String coverImage;
+
+    @OneToMany(
+            mappedBy = "book",
             cascade = CascadeType.ALL,
-            orphanRemoval = true)
+            orphanRemoval = true
+    )
     private List<Review> reviews = new ArrayList<>();
 
     public Book() {
-    }
-
-    public Book(Long id, String title, String author, String genre,
-                Integer publishedYear, String isbn, List<Review> reviews) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-        this.genre = genre;
-        this.publishedYear = publishedYear;
-        this.isbn = isbn;
-        this.reviews = reviews;
     }
 
     public Long getId() {
@@ -95,6 +84,14 @@ public class Book {
 
     public void setIsbn(String isbn) {
         this.isbn = isbn;
+    }
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
     }
 
     public List<Review> getReviews() {
