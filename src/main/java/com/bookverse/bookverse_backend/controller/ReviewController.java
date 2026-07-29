@@ -3,7 +3,7 @@ package com.bookverse.bookverse_backend.controller;
 import com.bookverse.bookverse_backend.dto.ReviewRequestDTO;
 import com.bookverse.bookverse_backend.dto.ReviewResponseDTO;
 import com.bookverse.bookverse_backend.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,28 +13,53 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ReviewController {
 
-    @Autowired
-    private ReviewService reviewService;
+    private final ReviewService reviewService;
+
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
 
     @PostMapping
-    public ReviewResponseDTO addReview(@RequestBody ReviewRequestDTO requestDTO) {
-        return reviewService.addReview(requestDTO);
+    public ReviewResponseDTO addReview(
+            @RequestBody ReviewRequestDTO request,
+            Authentication authentication) {
+
+        return reviewService.addReview(
+                request,
+                authentication.getName()
+        );
     }
 
     @GetMapping("/book/{bookId}")
-    public List<ReviewResponseDTO> getReviewsByBook(@PathVariable Long bookId) {
+    public List<ReviewResponseDTO> getReviewsByBook(
+            @PathVariable Long bookId) {
+
         return reviewService.getReviewsByBook(bookId);
     }
 
-    @PutMapping("/{id}")
-    public ReviewResponseDTO updateReview(@PathVariable Long id,
-                                          @RequestBody ReviewRequestDTO requestDTO) {
-        return reviewService.updateReview(id, requestDTO);
+    @PutMapping("/{reviewId}")
+    public ReviewResponseDTO updateReview(
+            @PathVariable Long reviewId,
+            @RequestBody ReviewRequestDTO request,
+            Authentication authentication) {
+
+        return reviewService.updateReview(
+                reviewId,
+                request,
+                authentication.getName()
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
-        return "Review deleted successfully";
+    @DeleteMapping("/{reviewId}")
+    public String deleteReview(
+            @PathVariable Long reviewId,
+            Authentication authentication) {
+
+        reviewService.deleteReview(
+                reviewId,
+                authentication.getName()
+        );
+
+        return "Review deleted successfully.";
     }
 }

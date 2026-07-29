@@ -5,11 +5,12 @@ import java.time.LocalDateTime;
 public class ReviewResponseDTO {
 
     private Long id;
-    private Integer rating;
+    private Long bookId;
+    private String bookTitle;
     private String reviewerName;
+    private Integer rating;
     private String comment;
     private LocalDateTime createdAt;
-    private Long bookId;
 
     public ReviewResponseDTO() {
     }
@@ -22,12 +23,20 @@ public class ReviewResponseDTO {
         this.id = id;
     }
 
-    public Integer getRating() {
-        return rating;
+    public Long getBookId() {
+        return bookId;
     }
 
-    public void setRating(Integer rating) {
-        this.rating = rating;
+    public void setBookId(Long bookId) {
+        this.bookId = bookId;
+    }
+
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
     }
 
     public String getReviewerName() {
@@ -36,6 +45,14 @@ public class ReviewResponseDTO {
 
     public void setReviewerName(String reviewerName) {
         this.reviewerName = reviewerName;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 
     public String getComment() {
@@ -52,13 +69,5 @@ public class ReviewResponseDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
     }
 }

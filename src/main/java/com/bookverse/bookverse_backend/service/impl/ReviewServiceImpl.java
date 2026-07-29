@@ -4,39 +4,49 @@ import com.bookverse.bookverse_backend.dto.ReviewRequestDTO;
 import com.bookverse.bookverse_backend.dto.ReviewResponseDTO;
 import com.bookverse.bookverse_backend.entity.Book;
 import com.bookverse.bookverse_backend.entity.Review;
+import com.bookverse.bookverse_backend.entity.User;
 import com.bookverse.bookverse_backend.repository.BookRepository;
 import com.bookverse.bookverse_backend.repository.ReviewRepository;
+import com.bookverse.bookverse_backend.repository.UserRepository;
 import com.bookverse.bookverse_backend.service.ReviewService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
+    private final BookRepository bookRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private BookRepository bookRepository;
+    public ReviewServiceImpl(ReviewRepository reviewRepository,
+                             BookRepository bookRepository,
+                             UserRepository userRepository) {
+        this.reviewRepository = reviewRepository;
+        this.bookRepository = bookRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
-    public ReviewResponseDTO addReview(ReviewRequestDTO requestDTO) {
+    public ReviewResponseDTO addReview(ReviewRequestDTO request, String email) {
 
-        Book book = bookRepository.findById(requestDTO.getBookId())
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Book book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
         Review review = new Review();
 
-        review.setRating(requestDTO.getRating());
-        review.setReviewerName(requestDTO.getReviewerName());
-        review.setComment(requestDTO.getComment());
-        review.setCreatedAt(LocalDateTime.now());
         review.setBook(book);
+        review.setUser(user);
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
 
-        return mapToDTO(reviewRepository.save(review));
+        Review savedReview = reviewRepository.save(review);
+
+        return mapToDTO(savedReview);
     }
 
     @Override
@@ -49,26 +59,42 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewResponseDTO updateReview(Long id, ReviewRequestDTO requestDTO) {
+    public ReviewResponseDTO updateReview(Long reviewId,
+                                          ReviewRequestDTO request,
+                                          String email) {
 
-        Review review = reviewRepository.findById(id)
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
 
-        review.setRating(requestDTO.getRating());
-        review.setReviewerName(requestDTO.getReviewerName());
-        review.setComment(requestDTO.getComment());
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can update only your own review.");
+        }
 
-        return mapToDTO(reviewRepository.save(review));
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+
+        Review updated = reviewRepository.save(review);
+
+        return mapToDTO(updated);
     }
 
     @Override
-    public void deleteReview(Long id) {
+    public void deleteReview(Long reviewId, String email) {
 
-        if (!reviewRepository.existsById(id)) {
-            throw new RuntimeException("Review not found");
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        if (!review.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can delete only your own review.");
         }
 
-        reviewRepository.deleteById(id);
+        reviewRepository.delete(review);
     }
 
     private ReviewResponseDTO mapToDTO(Review review) {
@@ -76,11 +102,12 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewResponseDTO dto = new ReviewResponseDTO();
 
         dto.setId(review.getId());
+        dto.setBookId(review.getBook().getId());
+        dto.setBookTitle(review.getBook().getTitle());
+        dto.setReviewerName(review.getUser().getName());
         dto.setRating(review.getRating());
-        dto.setReviewerName(review.getReviewerName());
         dto.setComment(review.getComment());
         dto.setCreatedAt(review.getCreatedAt());
-        dto.setBookId(review.getBook().getId());
 
         return dto;
     }
