@@ -14,7 +14,7 @@ public class Review {
     private Long id;
 
     private Integer rating;
-
+    private String reviewerName;
     private String comment;
 
     private LocalDateTime createdAt;
@@ -46,7 +46,13 @@ public class Review {
     public String getComment() {
         return comment;
     }
+    public String getReviewerName() {
+        return reviewerName;
+    }
 
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
     public void setComment(String comment) {
         this.comment = comment;
     }
